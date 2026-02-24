@@ -1,29 +1,13 @@
 # Yii Validation Component
 
-A standalone validation component extracted from Yii1 framework, designed to work independently without dependencies and compatible with PHP 8.
-
-## Features
-
-- Standalone validation rules extracted from Yii1
-- No external dependencies
-- Compatible with PHP 8+
-- Maintains the familiar Yii validation interface
+This package provides the validation functionality from Yii 1.1 as a standalone component that can be used independently of the rest of the framework.
 
 ## Installation
 
 Install via Composer:
 
 ```
-composer require your-package-name
-```
-
-## Usage
-
-```php
-use YourNamespace\Validator;
-
-$validator = new Validator();
-// Add your validation rules and validate data
+composer require yii1x/validator
 ```
 
 ## Migration Notice
