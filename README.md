@@ -1,6 +1,11 @@
-# Yii Validation Component
+# Yii1 Validator — Standalone Validation Component
 
-This package provides the validation functionality from Yii 1.1 as a standalone component that can be used independently of the rest of the framework.
+[![Latest Stable Version](https://img.shields.io/packagist/v/yii1x/validator)](https://packagist.org/packages/yii1x/validator)
+[![Total Downloads](https://img.shields.io/packagist/dt/yii1x/validator)](https://packagist.org/packages/yii1x/validator)
+[![License](https://img.shields.io/github/license/yii1x/validator)](https://github.com/yii1x/validator/blob/master/LICENSE)
+
+This package provides the validation functionality from Yii 1.1 as a standalone component.  
+It can be used independently of the rest of the framework — perfect for legacy projects or when you need Yii-style validation in modern PHP applications.
 
 ## Installation
 
