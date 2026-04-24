@@ -1,7 +1,7 @@
 {
     "name": "yii1x/validator",
     "description": "validator",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "autoload": {
         "psr-4": {
             "Yii1x\\Validator\\": "src/"
