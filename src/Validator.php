@@ -116,9 +116,9 @@ class Validator implements ValidatorInterface
             default => [],
         };
         unset($params['on'], $params['except']);
-        if (isset(static::$ruleAlias[$name])) {
+        if (isset(static::$ruleAlias[$name]) || class_exists($name)) {
             $params['attributes'] = $attributes;
-            $rule = new static::$ruleAlias[$name];
+            $rule = isset(static::$ruleAlias[$name]) ? new static::$ruleAlias[$name] : new $name;
             foreach ($params as $name => $value) {
                 $rule->$name = $value;
             }
