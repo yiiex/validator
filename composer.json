@@ -1,7 +1,6 @@
 {
     "name": "yii1x/validator",
     "description": "validator",
-    "version": "0.1.0",
     "autoload": {
         "psr-4": {
             "Yii1x\\Validator\\": "src/"
@@ -17,12 +16,13 @@
             "name": "Galtsev Timofey"
         }
     ],
-    "minimum-stability": "stable",
-    "require-dev": {
-        "phpunit/phpunit": "^12.0"
-    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "require": {
         "php": "^8.3",
         "psr/http-message": "^2.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^12.0"
     }
 }
