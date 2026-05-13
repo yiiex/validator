@@ -1,6 +1,7 @@
 {
     "name": "yii1x/validator",
     "description": "validator",
+    "license": "BSD-3-Clause",
     "autoload": {
         "psr-4": {
             "Yii1x\\Validator\\": "src/"
@@ -11,11 +12,6 @@
             "Yii1x\\Validator\\Tests\\": "tests/"
         }
     },
-    "authors": [
-        {
-            "name": "Galtsev Timofey"
-        }
-    ],
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
