@@ -146,6 +146,38 @@ final class ValidatorTest extends TestCase
         $this->assertSame(['name'], $validator->getSafeAttributes());
     }
 
+    /* ---------- КАСТОМНЫЙ КЛАСС ПРАВИЛА ---------- */
+
+    public function testCustomRuleClass(): void
+    {
+        $customRule = new class extends \Yii1x\Validator\Rules\AbstractRule {
+            protected function validateAttribute(object $object, string $attribute): void
+            {
+                if ($object->$attribute !== 'valid') {
+                    $this->validator->addError($attribute, $this->message ?? 'Value must be "valid"');
+                }
+            }
+        };
+
+        $obj = (object)[
+            'field1' => 'valid',
+            'field2' => 'invalid',
+        ];
+
+        $validator = new Validator($obj, [
+            ['field1', $customRule::class],
+            ['field2', $customRule::class, 'message' => 'Custom error message'],
+        ]);
+
+        $this->assertFalse($validator->validate());
+        $this->assertFalse($validator->hasErrors('field1'));
+        $this->assertTrue($validator->hasErrors('field2'));
+
+        // Проверка, что кастомное сообщение используется
+        $errors = $validator->getErrors('field2');
+        $this->assertStringContainsString('Custom error message', implode(' ', $errors['field2']));
+    }
+
     /* ---------- ДАТА-ПРОВАЙДЕРЫ ---------- */
 
     #[DataProvider('attributeListProvider')]
