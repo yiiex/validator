@@ -22,6 +22,7 @@ This package is the **validation** component from **Yii 1.1**, extracted and ref
 - ✅ File uploads use PSR-7 `UploadedFileInterface`
 
 Full reference of validators and options: **[docs/rules.md](docs/rules.md)**.
+Extending the validator (custom rule factories, DI): **[docs/extending.md](docs/extending.md)**.
 
 ---
 
