@@ -10,7 +10,7 @@ use Yii1x\Validator\Validator;
 
 final class FilterRuleTest extends TestCase
 {
-    /* ---------- ПРОВЕРКА ВСТРОЕННЫХ ФУНКЦИЙ ---------- */
+    /* ---------- BUILT-IN FUNCTIONS ---------- */
 
     #[DataProvider('builtinFilterProvider')]
     public function testBuiltinFilter(
@@ -31,7 +31,7 @@ final class FilterRuleTest extends TestCase
         $this->assertFalse($rule->validator->hasErrors('attr'));
     }
 
-    /* ---------- ПРОВЕРКА АНОНИМНОЙ ФУНКЦИИ ---------- */
+    /* ---------- ANONYMOUS FUNCTION ---------- */
 
     public function testAnonymousFilter(): void
     {
@@ -46,7 +46,7 @@ final class FilterRuleTest extends TestCase
         $this->assertSame('HELLO', $obj->attr);
     }
 
-    /* ---------- ПРОВЕРКА НЕСКОЛЬКИХ АТРИБУТОВ ---------- */
+    /* ---------- MULTIPLE ATTRIBUTES ---------- */
 
     public function testMultipleAttributes(): void
     {

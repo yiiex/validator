@@ -10,7 +10,7 @@ use Yii1x\Validator\Validator;
 
 final class UrlRuleTest extends TestCase
 {
-    /* ---------- ВАЛИДНЫЕ URL ---------- */
+    /* ---------- VALID URLS ---------- */
 
     #[DataProvider('validUrlProvider')]
     public function testValid(
@@ -32,7 +32,7 @@ final class UrlRuleTest extends TestCase
         $this->assertFalse($rule->validator->hasErrors('link'));
     }
 
-    /* ---------- НЕВАЛИДНЫЕ URL ---------- */
+    /* ---------- INVALID URLS ---------- */
 
     #[DataProvider('invalidUrlProvider')]
     public function testInvalid(string $url): void
@@ -101,7 +101,7 @@ final class UrlRuleTest extends TestCase
         $this->assertFalse($rule->validator->hasErrors('link'));
     }
 
-    /* ---------- КАСТОМНОЕ СООБЩЕНИЕ ---------- */
+    /* ---------- CUSTOM MESSAGE ---------- */
 
     public function testCustomMessage(): void
     {
@@ -132,10 +132,10 @@ final class UrlRuleTest extends TestCase
 
     public static function invalidUrlProvider(): iterable
     {
-        yield ['ftp://example.com']; // ftp не разрешён по умолчанию
-        yield ['example.com']; // без схемы и без defaultScheme
+        yield ['ftp://example.com']; // ftp is not allowed by default
+        yield ['example.com']; // no scheme and no defaultScheme
         yield ['http://'];
-        yield ['http://example .com']; // пробелы в хосте
+        yield ['http://example .com']; // spaces in the host
     }
 
     public static function defaultSchemeProvider(): iterable

@@ -6,7 +6,7 @@ namespace Yii1x\Validator\Tests\File;
 use Psr\Http\Message\UploadedFileInterface;
 
 /**
- * Подменный объект UploadedFile для тестов
+ * Fake UploadedFile object for tests
  */
 final class FakeUploadedFile implements UploadedFileInterface
 {

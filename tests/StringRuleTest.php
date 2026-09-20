@@ -10,7 +10,7 @@ use Yii1x\Validator\Validator;
 
 final class StringRuleTest extends TestCase
 {
-    /* ---------- ПРОВЕРКИ ВАЛИДНЫХ ЗНАЧЕНИЙ ---------- */
+    /* ---------- VALID VALUES ---------- */
 
     #[DataProvider('validDataProvider')]
     public function testValid(
@@ -37,7 +37,7 @@ final class StringRuleTest extends TestCase
         $this->assertFalse($rule->validator->hasErrors('attr'));
     }
 
-    /* ---------- ПРОВЕРКИ НЕВАЛИДНЫХ ЗНАЧЕНИЙ ---------- */
+    /* ---------- INVALID VALUES ---------- */
 
     #[DataProvider('invalidDataProvider')]
     public function testInvalid(
@@ -53,7 +53,7 @@ final class StringRuleTest extends TestCase
         $rule->min = $min;
         $rule->max = $max;
         $rule->is = $exact;
-        $rule->allowEmpty = false;        // принудительно проверяем
+        $rule->allowEmpty = false;        // force the check
         $rule->attributes = ['attr'];
         $rule->validator = new Validator($obj);
 
@@ -64,7 +64,7 @@ final class StringRuleTest extends TestCase
         $this->assertContains($expectedMessage, $errors['attr']);
     }
 
-    /* ---------- КАСТОМНЫЕ СООБЩЕНИЯ ---------- */
+    /* ---------- CUSTOM MESSAGES ---------- */
 
     public function testCustomMessages(): void
     {
@@ -91,14 +91,14 @@ final class StringRuleTest extends TestCase
         yield ['', null, null, null, true, null];
         yield [null, 1, 10, null, true, null];
 
-        // обычные строки
+        // regular strings
         yield ['abc', 1, 10, null, false, null];
         yield ['абв', 1, 10, null, false, 'UTF-8']; // mb_strlen
 
         // exact length
         yield ['12345', null, null, 5, false, null];
 
-        // границы
+        // boundaries
         yield ['123', 3, 5, null, false, null];
     }
 
@@ -113,7 +113,7 @@ final class StringRuleTest extends TestCase
         // exact length
         yield ['123', null, null, 4, 'attr is of the wrong length (should be 4 characters).'];
 
-        // массив недопустим
+        // array is not allowed
         yield [[], null, null, null, 'attr is invalid.'];
     }
 }

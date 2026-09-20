@@ -10,7 +10,7 @@ use Yii1x\Validator\Validator;
 
 final class NumberRuleTest extends TestCase
 {
-    /* ---------- ВАЛИДНЫЕ ЗНАЧЕНИЯ ---------- */
+    /* ---------- VALID VALUES ---------- */
 
     #[DataProvider('validProvider')]
     public function testValid(
@@ -34,7 +34,7 @@ final class NumberRuleTest extends TestCase
         $this->assertFalse($rule->validator->hasErrors('num'));
     }
 
-    /* ---------- НЕВАЛИДНЫЕ ЗНАЧЕНИЯ ---------- */
+    /* ---------- INVALID VALUES ---------- */
 
     #[DataProvider('invalidProvider')]
     public function testInvalid(
@@ -73,7 +73,7 @@ final class NumberRuleTest extends TestCase
         $this->assertFalse($rule->validator->hasErrors('num'));
     }
 
-    /* ---------- КАСТОМНЫЕ СООБЩЕНИЯ ---------- */
+    /* ---------- CUSTOM MESSAGES ---------- */
 
     public function testCustomMessages(): void
     {
@@ -97,32 +97,32 @@ final class NumberRuleTest extends TestCase
 
     public static function validProvider(): iterable
     {
-        // обычные числа
+        // regular numbers
         yield [42];
         yield [3.14];
         yield [-7];
         yield [' 123 '];
         yield ['+7.5'];
 
-        // только целые
+        // integers only
         yield [42, true];
         yield ['  -99  ', true];
 
-        // диапазон
+        // range
         yield [5, false, 1, 10];
         yield [7, true, 5, 10];
     }
 
     public static function invalidProvider(): iterable
     {
-        // не число
+        // not a number
         yield ['abc'];
         yield ['12a'];
 
-        // не целое
+        // not an integer
         yield [3.14, true];
 
-        // за пределами
+        // out of bounds
         yield [0, false, 5, 10];
         yield [15, false, 5, 10];
         yield [4.5, false, 5, 10];

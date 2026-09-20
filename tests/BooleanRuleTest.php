@@ -10,7 +10,7 @@ use Yii1x\Validator\Validator;
 
 final class BooleanRuleTest extends TestCase
 {
-    /* ---------- ВАЛИДНЫЕ ЗНАЧЕНИЯ ---------- */
+    /* ---------- VALID VALUES ---------- */
 
     #[DataProvider('validDataProvider')]
     public function testValid(
@@ -35,7 +35,7 @@ final class BooleanRuleTest extends TestCase
         $this->assertFalse($rule->validator->hasErrors('attr'));
     }
 
-    /* ---------- НЕВАЛИДНЫЕ ЗНАЧЕНИЯ ---------- */
+    /* ---------- INVALID VALUES ---------- */
 
     #[DataProvider('invalidDataProvider')]
     public function testInvalid(
@@ -61,7 +61,7 @@ final class BooleanRuleTest extends TestCase
         $this->assertStringContainsString('attr must be either', implode(' ', $errors['attr']));
     }
 
-    /* ---------- ПРОВЕРКА КАСТОМНОГО СООБЩЕНИЯ ---------- */
+    /* ---------- CUSTOM MESSAGE ---------- */
 
     public function testCustomMessage(): void
     {
@@ -85,11 +85,11 @@ final class BooleanRuleTest extends TestCase
 
     public static function validDataProvider(): iterable
     {
-        // Стандартные значения по умолчанию
+        // default values
         yield ['1', '1', '0', false, false];
         yield ['0', '1', '0', false, false];
 
-        // Разные типы
+        // different types
         yield [true, true, false, true, false];
         yield [false, true, false, true, false];
 
@@ -97,11 +97,11 @@ final class BooleanRuleTest extends TestCase
         yield ['', '1', '0', false, true];
         yield [null, '1', '0', false, true];
 
-        // Нестрогие сравнения
+        // loose comparisons
         yield [1, '1', '0', false, false];
         yield [0, '1', '0', false, false];
 
-        // Кастомные true/false
+        // custom true/false
         yield ['yes', 'yes', 'no', false, false];
         yield ['no', 'yes', 'no', false, false];
     }
@@ -111,7 +111,7 @@ final class BooleanRuleTest extends TestCase
         yield ['2', '1', '0', false];
         yield ['yes', '1', '0', false];
         yield [2, 1, 0, true];
-        yield ['1', 1, 0, true]; // строгое сравнение строки и числа
+        yield ['1', 1, 0, true]; // strict comparison of string and number
         yield [null, '1', '0', false]; // allowEmpty = false
     }
 }

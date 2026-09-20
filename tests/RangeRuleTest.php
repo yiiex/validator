@@ -10,7 +10,7 @@ use Yii1x\Validator\Validator;
 
 final class RangeRuleTest extends TestCase
 {
-    /* ---------- ВАЛИДНЫЕ ЗНАЧЕНИЯ ---------- */
+    /* ---------- VALID VALUES ---------- */
 
     #[DataProvider('validProvider')]
     public function testValid(
@@ -35,7 +35,7 @@ final class RangeRuleTest extends TestCase
         $this->assertFalse($rule->validator->hasErrors('attr'));
     }
 
-    /* ---------- НЕВАЛИДНЫЕ ЗНАЧЕНИЯ ---------- */
+    /* ---------- INVALID VALUES ---------- */
 
     #[DataProvider('invalidProvider')]
     public function testInvalid(
@@ -75,7 +75,7 @@ final class RangeRuleTest extends TestCase
         $this->assertFalse($rule->validator->hasErrors('attr'));
     }
 
-    /* ---------- КАСТОМНОЕ СООБЩЕНИЕ ---------- */
+    /* ---------- CUSTOM MESSAGE ---------- */
 
     public function testCustomMessage(): void
     {
@@ -97,11 +97,11 @@ final class RangeRuleTest extends TestCase
 
     public static function validProvider(): iterable
     {
-        // обычное попадание в список
+        // value is in the list
         yield ['a', ['a', 'b']];
         yield [1, [1, 2, 3]];
 
-        // не-строгие сравнения
+        // loose comparisons
         yield ['1', [1, 2], false];   // '1' == 1
         yield [1, ['1', '2'], false]; // 1 == '1'
 
@@ -112,19 +112,19 @@ final class RangeRuleTest extends TestCase
         yield ['', [], false, false, true];
         yield [null, [], false, false, true];
 
-        // not = true (значение НЕ должно быть в списке)
+        // not = true (value must NOT be in the list)
         yield ['x', ['a', 'b'], false, true];
     }
 
     public static function invalidProvider(): iterable
     {
-        // значение отсутствует
+        // value is missing
         yield ['z', ['a', 'b']];
 
-        // строгий режим, типы не совпадают
+        // strict mode, types do not match
         yield ['1', [1, 2], true];
 
-        // not = true, но значение есть в списке
+        // not = true, but the value is in the list
         yield ['a', ['a', 'b'], true, true];
     }
 }

@@ -10,7 +10,7 @@ use Yii1x\Validator\Validator;
 
 final class DateRuleTest extends TestCase
 {
-    /* ---------- ПРОВЕРКА ВАЛИДНЫХ СТРОК ---------- */
+    /* ---------- VALID STRINGS ---------- */
 
     #[DataProvider('validDataProvider')]
     public function testValid(
@@ -34,7 +34,7 @@ final class DateRuleTest extends TestCase
         }
     }
 
-    /* ---------- ПРОВЕРКА НЕВАЛИДНЫХ СТРОК ---------- */
+    /* ---------- INVALID STRINGS ---------- */
 
     #[DataProvider('invalidDataProvider')]
     public function testInvalid(
@@ -53,7 +53,7 @@ final class DateRuleTest extends TestCase
         $this->assertTrue($rule->validator->hasErrors('attr'));
     }
 
-    /* ---------- ПРОВЕРКА allowEmpty ---------- */
+    /* ---------- allowEmpty ---------- */
 
     public function testAllowEmpty(): void
     {
@@ -68,7 +68,7 @@ final class DateRuleTest extends TestCase
         $this->assertFalse($rule->validator->hasErrors('attr'));
     }
 
-    /* ---------- ПРОВЕРКА КАСТОМНОГО СООБЩЕНИЯ ---------- */
+    /* ---------- CUSTOM MESSAGE ---------- */
 
     public function testCustomMessage(): void
     {
@@ -90,25 +90,25 @@ final class DateRuleTest extends TestCase
 
     public static function validDataProvider(): iterable
     {
-        // Один формат
+        // single format
         yield ['12/31/2024', 'm/d/Y', null];
         yield ['31/12/2024', 'd/m/Y', null];
         yield ['2024-12-31', 'Y-m-d', null];
 
-        // Несколько форматов
+        // multiple formats
         yield ['31-12-2024', ['Y-m-d', 'd-m-Y'], null];
 
-        // С сохранением timestamp
+        // saves timestamp
         yield ['2024-12-31', 'Y-m-d', 'ts'];
     }
 
     public static function invalidDataProvider(): iterable
     {
-        // Неверный день / месяц
+        // invalid day / month
         yield ['2024-13-45', 'Y-m-d'];
         yield ['31/31/2024', 'm/d/Y'];
 
-        // Неверный формат
+        // invalid format
         yield ['not-a-date', 'Y-m-d'];
         yield ['2024-12-31 25:00', 'Y-m-d H:i'];
     }

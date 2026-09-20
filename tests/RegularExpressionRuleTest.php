@@ -10,7 +10,7 @@ use Yii1x\Validator\Validator;
 
 final class RegularExpressionRuleTest extends TestCase
 {
-    /* ---------- ВАЛИДНЫЕ ЗНАЧЕНИЯ ---------- */
+    /* ---------- VALID VALUES ---------- */
 
     #[DataProvider('validProvider')]
     public function testValid(
@@ -32,7 +32,7 @@ final class RegularExpressionRuleTest extends TestCase
         $this->assertFalse($rule->validator->hasErrors('code'));
     }
 
-    /* ---------- НЕВАЛИДНЫЕ ЗНАЧЕНИЯ ---------- */
+    /* ---------- INVALID VALUES ---------- */
 
     #[DataProvider('invalidProvider')]
     public function testInvalid(
@@ -70,7 +70,7 @@ final class RegularExpressionRuleTest extends TestCase
         $this->assertFalse($rule->validator->hasErrors('code'));
     }
 
-    /* ---------- ОТСУТСТВИЕ pattern ---------- */
+    /* ---------- MISSING pattern ---------- */
 
     public function testMissingPatternThrows(): void
     {
@@ -85,7 +85,7 @@ final class RegularExpressionRuleTest extends TestCase
         $rule->validate($obj);
     }
 
-    /* ---------- КАСТОМНОЕ СООБЩЕНИЕ ---------- */
+    /* ---------- CUSTOM MESSAGE ---------- */
 
     public function testCustomMessage(): void
     {
@@ -103,7 +103,7 @@ final class RegularExpressionRuleTest extends TestCase
         $this->assertContains($message, $errors['code']);
     }
 
-    /* ---------- МАССИВЫ ОТВЕРГАЮТСЯ ---------- */
+    /* ---------- ARRAYS ARE REJECTED ---------- */
 
     public function testArrayIsInvalid(): void
     {
@@ -123,21 +123,21 @@ final class RegularExpressionRuleTest extends TestCase
 
     public static function validProvider(): iterable
     {
-        // обычное совпадение
+        // regular match
         yield ['123', '/^\d+$/'];
         yield ['abc', '/^[a-z]+$/'];
 
-        // not = true (значение НЕ должно совпадать)
+        // not = true (value must NOT match)
         yield ['abc', '/^\d+$/', true];
     }
 
     public static function invalidProvider(): iterable
     {
-        // не совпало
+        // no match
         yield ['abc', '/^\d+$/'];
         yield ['123', '/^[a-z]+$/'];
 
-        // not = true, но совпало
+        // not = true, but it matched
         yield ['123', '/^\d+$/', true];
     }
 }

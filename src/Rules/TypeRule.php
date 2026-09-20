@@ -113,7 +113,7 @@ class TypeRule extends AbstractRule
     protected function validateValue(mixed $value): bool
     {
         $type = $this->type === 'float' ? 'double' : $this->type;
-        // строгий контроль
+        // strict type check
         if ($type === gettype($value)) {
             return true;
         }

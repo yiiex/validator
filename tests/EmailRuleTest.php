@@ -10,7 +10,7 @@ use Yii1x\Validator\Validator;
 
 final class EmailRuleTest extends TestCase
 {
-    /* ---------- ВАЛИДНЫЕ АДРЕСА ---------- */
+    /* ---------- VALID ADDRESSES ---------- */
 
     #[DataProvider('validEmailProvider')]
     public function testValid(
@@ -32,7 +32,7 @@ final class EmailRuleTest extends TestCase
         $this->assertFalse($rule->validator->hasErrors('email'));
     }
 
-    /* ---------- НЕВАЛИДНЫЕ АДРЕСА ---------- */
+    /* ---------- INVALID ADDRESSES ---------- */
 
     #[DataProvider('invalidEmailProvider')]
     public function testInvalid(string $email): void
@@ -55,7 +55,7 @@ final class EmailRuleTest extends TestCase
     {
         $obj = (object)['email' => $email];
         $rule = new EmailRule();
-        $rule->allowName = $allowName;   // ← берём из провайдера
+        $rule->allowName = $allowName;   // taken from the provider
         $rule->allowEmpty = false;
         $rule->attributes = ['email'];
         $rule->validator = new Validator($obj);
@@ -96,7 +96,7 @@ final class EmailRuleTest extends TestCase
         $this->assertFalse($rule->validator->hasErrors('email'));
     }
 
-    /* ---------- КАСТОМНОЕ СООБЩЕНИЕ ---------- */
+    /* ---------- CUSTOM MESSAGE ---------- */
 
     public function testCustomMessage(): void
     {
@@ -133,7 +133,7 @@ final class EmailRuleTest extends TestCase
 
     public static function allowNameProvider(): iterable
     {
-        yield ['Qiang Xue <qiang.xue@gmail.com>', true, true];   // allowName=true → валидно
-        yield ['Qiang Xue <qiang.xue@gmail.com>', false, false]; // allowName=false → невалидно
+        yield ['Qiang Xue <qiang.xue@gmail.com>', true, true];   // allowName=true -> valid
+        yield ['Qiang Xue <qiang.xue@gmail.com>', false, false]; // allowName=false -> invalid
     }
 }
