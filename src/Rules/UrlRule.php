@@ -75,12 +75,12 @@ class UrlRule extends AbstractRule
             $value = $this->defaultScheme . '://' . $value;
         }
 
-        // IDN-кодирование / декодирование
+        // IDN encoding / decoding
         if ($this->validateIDN) {
             $value = $this->handleIDN($value);
         }
 
-        // проверка схемы
+        // scheme check
         $schemes = implode('|', $this->validSchemes);
         $pattern = sprintf('#^(%s)://([a-z0-9-]+\.)*[a-z0-9-]+(/.*)?$#i', $schemes);
         return preg_match($pattern, $value) ? $value : false;

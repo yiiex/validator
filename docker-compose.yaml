@@ -1,0 +1,14 @@
+services:
+    php:
+        build:
+            context: .
+            dockerfile: _docker/php/Dockerfile
+        volumes:
+            - ./:/app
+            - /app/vendor
+        working_dir: /app
+        networks:
+            - test-network
+
+networks:
+    test-network:

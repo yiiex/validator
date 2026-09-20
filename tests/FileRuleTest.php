@@ -12,7 +12,7 @@ use Yii1x\Validator\Validator;
 
 final class FileRuleTest extends TestCase
 {
-    /* ---------- ПОМОЩНИК ---------- */
+    /* ---------- HELPER ---------- */
     private static function makeFile(
         string  $name,
         ?int    $size = null,
@@ -23,7 +23,7 @@ final class FileRuleTest extends TestCase
         return new FakeUploadedFile($name, $size, $mime, $error);
     }
 
-    /* ---------- ВАЛИДНЫЕ ФАЙЛЫ ---------- */
+    /* ---------- VALID FILES ---------- */
 
     #[DataProvider('validProvider')]
     public function testValid(
@@ -49,7 +49,7 @@ final class FileRuleTest extends TestCase
         $this->assertFalse($rule->validator->hasErrors('file'));
     }
 
-    /* ---------- НЕВАЛИДНЫЕ ФАЙЛЫ ---------- */
+    /* ---------- INVALID FILES ---------- */
 
     #[DataProvider('invalidProvider')]
     public function testInvalid(
@@ -116,22 +116,22 @@ final class FileRuleTest extends TestCase
 
     public static function validProvider(): iterable
     {
-        // без ограничений
+        // no constraints
         yield [self::makeFile('image.jpg', 1024)];
 
-        // по расширению
+        // by extension
         yield [self::makeFile('photo.jpg'), ['jpg', 'png']];
 
-        // по MIME
+        // by MIME
         yield [self::makeFile('report.pdf', 2048, 'application/pdf'), null, ['application/pdf']];
 
-        // по размеру
+        // by size
         yield [self::makeFile('file.txt', 2048), null, null, 1000, 3000];
     }
 
     public static function invalidProvider(): iterable
     {
-        // 1. неправильное расширение
+        // 1. wrong extension
         yield [
             self::makeFile('script.php'),
             'The file "script.php" cannot be uploaded. Only files with these extensions are allowed: jpg, png',
@@ -141,7 +141,7 @@ final class FileRuleTest extends TestCase
             null
         ];
 
-        // 2. неправильный MIME-тип
+        // 2. wrong MIME type
         yield [
             self::makeFile('fake.jpg', 100, 'text/plain'),
             'The file "fake.jpg" cannot be uploaded. Only files of these MIME-types are allowed: image/jpeg',
@@ -151,17 +151,17 @@ final class FileRuleTest extends TestCase
             null
         ];
 
-        // 3. файл слишком большой
+        // 3. file too large
         yield [
-            self::makeFile('big.zip', 5 * 1024 * 1024), // 5 МБ
+            self::makeFile('big.zip', 5 * 1024 * 1024), // 5 MB
             'The file "big.zip" is too large. Its size cannot exceed 1048576 bytes.',
             null,
             null,
             null,
-            1024 * 1024   // 1 МБ
+            1024 * 1024   // 1 MB
         ];
 
-        // 4. файл слишком маленький
+        // 4. file too small
         yield [
             self::makeFile('tiny.txt', 100),
             'The file "tiny.txt" is too small. Its size cannot be smaller than 2000 bytes.',
@@ -171,7 +171,7 @@ final class FileRuleTest extends TestCase
             null
         ];
 
-        // 5. ошибка загрузки
+        // 5. upload error
         yield [
             self::makeFile('no_file.txt', null, null, UPLOAD_ERR_NO_FILE),
             'No file "no_file.txt" was uploaded.',

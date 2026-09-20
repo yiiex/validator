@@ -40,6 +40,13 @@ abstract class AbstractRule
      * @since 1.1.4
      */
     public bool $safe = true;
+    /**
+     * @var callable|null a PHP callable whose return value determines whether this validator should be applied.
+     * The callable receives the object being validated and must return a boolean. When it returns false,
+     * the whole validator is skipped. It is evaluated last (after the scenario checks) once per getRules()
+     * call, i.e. per validate(), getSafeAttributes() and getRequiredAttributes().
+     */
+    public mixed $when = null;
 
     abstract protected function validateAttribute(object $object, string $attribute): void;
 
@@ -66,19 +73,28 @@ abstract class AbstractRule
 
     /**
      * Returns a value indicating whether the validator applies to the specified scenario.
-     * A validator applies to a scenario as long as any of the following conditions is met:
+     * A validator applies as long as all of the following conditions are met:
      * <ul>
-     * <li>the validator's "on" property is empty</li>
-     * <li>the validator's "on" property contains the specified scenario</li>
+     * <li>the validator's "except" property does not contain the specified scenario</li>
+     * <li>the validator's "on" property is empty or contains the specified scenario</li>
+     * <li>the validator's "when" callable, if set, returns true for the given object</li>
      * </ul>
-     * @param string $scenario scenario name
+     * Following Yii 1 semantics a model always has a scenario and the default one is an
+     * empty string. Therefore a null scenario is treated as an empty string, and validators
+     * with a non-empty "on" property are skipped. The "when" callable is checked last.
+     * @param string|null $scenario scenario name. Null is equivalent to an empty string.
      * @return boolean whether the validator applies to the specified scenario.
      */
-    public function applyTo(object $object, string $scenario): bool
+    public function applyTo(object $object, ?string $scenario = null): bool
     {
-        if (isset($this->except[$scenario]))
+        $scenario ??= '';
+        if (isset($this->except[$scenario])) {
             return false;
-        return empty($this->on) || isset($this->on[$scenario]);
+        }
+        if (!empty($this->on) && !isset($this->on[$scenario])) {
+            return false;
+        }
+        return $this->when === null || (bool)call_user_func($this->when, $object);
     }
 
     /**

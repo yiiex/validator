@@ -9,7 +9,7 @@ use Yii1x\Validator\Validator;
 
 final class ValidatorTest extends TestCase
 {
-    /* ---------- БАЗОВАЯ ВАЛИДАЦИЯ ---------- */
+    /* ---------- BASIC VALIDATION ---------- */
 
     public function testValidatePasses(): void
     {
@@ -35,7 +35,7 @@ final class ValidatorTest extends TestCase
         $this->assertTrue($validator->hasErrors('age'));
     }
 
-    /* ---------- СЦЕНАРИИ ---------- */
+    /* ---------- SCENARIOS ---------- */
 
     public function testScenarioOn(): void
     {
@@ -45,7 +45,7 @@ final class ValidatorTest extends TestCase
         ]);
 
         $this->assertFalse($validator->validate('insert'));
-        $this->assertTrue($validator->validate('update')); // правило не применяется
+        $this->assertTrue($validator->validate('update')); // rule does not apply
     }
 
     public function testScenarioExcept(): void
@@ -55,11 +55,11 @@ final class ValidatorTest extends TestCase
             ['name', 'required', 'except' => 'update'],
         ]);
 
-        $this->assertTrue($validator->validate('update')); // исключено
+        $this->assertTrue($validator->validate('update')); // excluded
         $this->assertFalse($validator->validate('insert'));
     }
 
-    /* ---------- СОЗДАНИЕ ПРАВИЛ ЧЕРЕЗ АЛИАС ---------- */
+    /* ---------- CREATING RULES BY ALIAS ---------- */
 
     public function testCreateValidatorByAlias(): void
     {
@@ -72,7 +72,7 @@ final class ValidatorTest extends TestCase
         $this->assertTrue($validator->hasErrors('email'));
     }
 
-    /* ---------- INLINE-МЕТОД ---------- */
+    /* ---------- INLINE METHOD ---------- */
 
     public function testInlineRule(): void
     {
@@ -80,10 +80,10 @@ final class ValidatorTest extends TestCase
             public string $password = '123';
             public string $password_repeat = '456';
 
-            public function checkPassword(string $attr, array $params, Validator $validator): void
+            public function checkPassword(string $attribute, array $params, Validator $validator): void
             {
                 if ($this->password !== $this->password_repeat) {
-                    $validator->addError($attr, 'Passwords do not match.');
+                    $validator->addError($attribute, 'Passwords do not match.');
                 }
             }
         };
@@ -94,7 +94,7 @@ final class ValidatorTest extends TestCase
         $this->assertFalse($validator->validate());
     }
 
-    /* ---------- ОШИБКА НЕВАЛИДНОГО ПРАВИЛА ---------- */
+    /* ---------- INVALID RULE ---------- */
 
     public function testInvalidRuleThrows(): void
     {
@@ -104,11 +104,11 @@ final class ValidatorTest extends TestCase
         $obj = new \stdClass();
         $validator = new Validator($obj, [['field', 'unknown']]);
 
-        // триггерим создание валидаторов
+        // trigger validator creation
         $validator->validate();
     }
 
-    /* ---------- НЕСКОЛЬКО АТРИБУТОВ ---------- */
+    /* ---------- MULTIPLE ATTRIBUTES ---------- */
 
     public function testMultipleAttributes(): void
     {
@@ -122,7 +122,7 @@ final class ValidatorTest extends TestCase
         $this->assertFalse($validator->hasErrors('a'));
     }
 
-    /* ---------- ГЕТТЕРЫ ---------- */
+    /* ---------- GETTERS ---------- */
 
     public function testGetRequiredAttributes(): void
     {
@@ -146,7 +146,7 @@ final class ValidatorTest extends TestCase
         $this->assertSame(['name'], $validator->getSafeAttributes());
     }
 
-    /* ---------- КАСТОМНЫЙ КЛАСС ПРАВИЛА ---------- */
+    /* ---------- CUSTOM RULE CLASS ---------- */
 
     public function testCustomRuleClass(): void
     {
@@ -173,17 +173,101 @@ final class ValidatorTest extends TestCase
         $this->assertFalse($validator->hasErrors('field1'));
         $this->assertTrue($validator->hasErrors('field2'));
 
-        // Проверка, что кастомное сообщение используется
+        // the custom message is used
         $errors = $validator->getErrors('field2');
         $this->assertStringContainsString('Custom error message', implode(' ', $errors['field2']));
     }
 
-    /* ---------- ДАТА-ПРОВАЙДЕРЫ ---------- */
+    /* ---------- WHEN ---------- */
+
+    public function testWhenSkipsAndAppliesRule(): void
+    {
+        $rules = ['name', 'required', 'when' => fn($model) => $model->type === 'b'];
+
+        $validator = new Validator((object)['type' => 'a', 'name' => ''], [$rules]);
+        $this->assertTrue($validator->validate());
+
+        $validator = new Validator((object)['type' => 'b', 'name' => ''], [$rules]);
+        $this->assertFalse($validator->validate());
+        $this->assertTrue($validator->hasErrors('name'));
+    }
+
+    public function testWhenInlineRule(): void
+    {
+        $model = new class {
+            public array $received = [];
+            public bool $check = true;
+
+            public function checkName(string $attribute, array $params, Validator $validator): void
+            {
+                $this->received = $params;
+                $validator->addError($attribute, 'Name is invalid.');
+            }
+        };
+
+        $rules = [['name', 'checkName', 'when' => fn($model) => $model->check, 'foo' => 'bar']];
+
+        $validator = new Validator($model, $rules);
+        $this->assertFalse($validator->validate());
+        $this->assertTrue($validator->hasErrors('name'));
+        $this->assertArrayNotHasKey('when', $model->received);
+        $this->assertSame('bar', $model->received['foo']);
+
+        $model->check = false;
+        $validator = new Validator($model, $rules);
+        $this->assertTrue($validator->validate());
+    }
+
+    public function testWhenMustBeCallable(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('The "when" property must be a callable');
+
+        $validator = new Validator((object)['name' => ''], [
+            ['name', 'required', 'when' => 'definitely-not-a-function-xyz'],
+        ]);
+
+        $validator->validate();
+    }
+
+    public function testScenarioFilteringAndWhenOrder(): void
+    {
+        $whenCalls = 0;
+        $rules = [
+            ['name', 'required', 'on' => 'insert'],
+            ['email', 'required'],
+            ['email', 'required', 'on' => 'insert', 'when' => function ($model) use (&$whenCalls) {
+                $whenCalls++;
+                return false;
+            }],
+        ];
+        $obj = (object)['name' => '', 'email' => ''];
+
+        // null and '' are the default (empty) scenario
+        foreach ([null, ''] as $scenario) {
+            $whenCalls = 0;
+            $validator = new Validator($obj, $rules);
+            $validator->validate($scenario);
+
+            $this->assertFalse($validator->hasErrors('name'));   // "on" rule is skipped
+            $this->assertTrue($validator->hasErrors('email'));   // rule without "on" runs
+            $this->assertSame(0, $whenCalls);                    // "when" is not reached
+        }
+
+        $whenCalls = 0;
+        $validator = new Validator($obj, $rules);
+        $validator->validate('insert');
+
+        $this->assertTrue($validator->hasErrors('name'));
+        $this->assertSame(1, $whenCalls);                        // "when" runs once, last
+    }
+
+    /* ---------- DATA PROVIDERS ---------- */
 
     #[DataProvider('attributeListProvider')]
     public function testParseAttributeList(string $input, array $expected): void
     {
-        // небольшой хелпер через рефлексию
+        // small helper via reflection
         $validator = new Validator(new \stdClass());
         $m = new \ReflectionMethod($validator, 'createValidator');
         $m->setAccessible(true);

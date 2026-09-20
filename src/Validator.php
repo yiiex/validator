@@ -81,7 +81,7 @@ class Validator implements ValidatorInterface
             $this->_rules = $this->createValidators($this->object);
         }
         foreach ($this->_rules as $rule) {
-            if (!$scenario || $rule->applyTo($this->object, $scenario)) {
+            if ($rule->applyTo($this->object, $scenario)) {
                 yield $rule;
             }
         }
@@ -115,7 +115,11 @@ class Validator implements ValidatorInterface
             isset($params['except']) => preg_split('/[\s,]+/', $params['except'], -1, PREG_SPLIT_NO_EMPTY),
             default => [],
         };
-        unset($params['on'], $params['except']);
+        $when = $params['when'] ?? null;
+        unset($params['on'], $params['except'], $params['when']);
+        if ($when !== null && !is_callable($when)) {
+            throw new \InvalidArgumentException('The "when" property must be a callable.');
+        }
         if (isset(static::$ruleAlias[$name]) || class_exists($name)) {
             $params['attributes'] = $attributes;
             $rule = isset(static::$ruleAlias[$name]) ? new static::$ruleAlias[$name] : new $name;
@@ -135,6 +139,7 @@ class Validator implements ValidatorInterface
         }
         $rule->on = empty($on) ? [] : array_combine($on, $on);
         $rule->except = empty($except) ? [] : array_combine($except, $except);
+        $rule->when = $when;
         $rule->validator = $this;
         return $rule;
     }

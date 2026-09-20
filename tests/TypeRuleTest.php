@@ -10,7 +10,7 @@ use Yii1x\Validator\Validator;
 
 final class TypeRuleTest extends TestCase
 {
-    /* ---------- ВАЛИДНЫЕ ЗНАЧЕНИЯ ---------- */
+    /* ---------- VALID VALUES ---------- */
 
     #[DataProvider('validDataProvider')]
     public function testValid(
@@ -33,7 +33,7 @@ final class TypeRuleTest extends TestCase
         $this->assertFalse($rule->validator->hasErrors('attr'));
     }
 
-    /* ---------- НЕВАЛИДНЫЕ ЗНАЧЕНИЯ ---------- */
+    /* ---------- INVALID VALUES ---------- */
 
     #[DataProvider('invalidDataProvider')]
     public function testInvalid(
@@ -45,8 +45,8 @@ final class TypeRuleTest extends TestCase
         $obj = (object)['attr' => $value];
         $rule = new TypeRule();
         $rule->type = $type;
-        $rule->allowEmpty = false;   // проверяем всё
-        $rule->strict = false;   // по умолчанию
+        $rule->allowEmpty = false;   // check everything
+        $rule->strict = false;   // default
         $rule->attributes = ['attr'];
         $rule->validator = new Validator($obj);
 
@@ -57,7 +57,7 @@ final class TypeRuleTest extends TestCase
         $this->assertContains($expectedMessage, $errors['attr']);
     }
 
-    /* ---------- STRICT-РЕЖИМ ---------- */
+    /* ---------- STRICT MODE ---------- */
 
     #[DataProvider('strictDataProvider')]
     public function testStrict(
@@ -79,7 +79,7 @@ final class TypeRuleTest extends TestCase
         $this->assertSame(!$expectedValid, $rule->validator->hasErrors('attr'));
     }
 
-    /* ---------- КАСТОМНОЕ СООБЩЕНИЕ ---------- */
+    /* ---------- CUSTOM MESSAGE ---------- */
 
     public function testCustomMessage(): void
     {
@@ -97,7 +97,7 @@ final class TypeRuleTest extends TestCase
         $this->assertContains('Поле attr должно быть integer', $errors['attr']);
     }
 
-    /* ---------- ДАТЫ / ВРЕМЯ / DATETIME ---------- */
+    /* ---------- DATES / TIMES / DATETIME ---------- */
 
     #[DataProvider('dateDataProvider')]
     public function testDateParsing(
@@ -133,11 +133,11 @@ final class TypeRuleTest extends TestCase
         yield ['hello', 'string', false, false];
         yield ['123', 'string', false, false];
 
-        // integer (не strict)
+        // integer (not strict)
         yield [42, 'integer', false, false];
         yield ['42', 'integer', false, false];
 
-        // float (не strict)
+        // float (not strict)
         yield [3.14, 'float', false, false];
         yield ['3.14', 'float', false, false];
 

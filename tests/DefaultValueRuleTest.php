@@ -10,7 +10,7 @@ use Yii1x\Validator\Validator;
 
 final class DefaultValueRuleTest extends TestCase
 {
-    /* ---------- ПРОВЕРКА setOnEmpty = true (по умолчанию) ---------- */
+    /* ---------- setOnEmpty = true (default) ---------- */
 
     #[DataProvider('setOnEmptyTrueProvider')]
     public function testSetOnEmptyTrue(
@@ -28,10 +28,10 @@ final class DefaultValueRuleTest extends TestCase
         $rule->validate($obj);
 
         $this->assertSame($expectedAfter, $obj->attr);
-        $this->assertFalse($rule->validator->hasErrors('attr')); // никаких ошибок
+        $this->assertFalse($rule->validator->hasErrors('attr')); // no errors
     }
 
-    /* ---------- ПРОВЕРКА setOnEmpty = false ---------- */
+    /* ---------- setOnEmpty = false ---------- */
 
     #[DataProvider('setOnEmptyFalseProvider')]
     public function testSetOnEmptyFalse(
@@ -51,7 +51,7 @@ final class DefaultValueRuleTest extends TestCase
         $this->assertSame($expectedAfter, $obj->attr);
     }
 
-    /* ---------- ПРОВЕРКА нескольких атрибутов ---------- */
+    /* ---------- MULTIPLE ATTRIBUTES ---------- */
 
     public function testMultipleAttributes(): void
     {
@@ -69,24 +69,24 @@ final class DefaultValueRuleTest extends TestCase
 
         $this->assertSame('DEFAULT', $obj->a);
         $this->assertSame('DEFAULT', $obj->b);
-        $this->assertSame('already set', $obj->c); // не перезаписано
+        $this->assertSame('already set', $obj->c); // not overwritten
     }
 
     /* ---------- DATA PROVIDERS ---------- */
 
     public static function setOnEmptyTrueProvider(): iterable
     {
-        // null или пустая строка → ставится дефолт
+        // null or empty string -> default is set
         yield [null, 42, 42];
         yield ['', 'default', 'default'];
-        yield [0, 'default', 0];      // 0 не считается empty
+        yield [0, 'default', 0];      // 0 is not considered empty
         yield [false, 'default', false];
-        yield ['not empty', 'default', 'not empty']; // оставляем как есть
+        yield ['not empty', 'default', 'not empty']; // left as is
     }
 
     public static function setOnEmptyFalseProvider(): iterable
     {
-        // setOnEmpty = false → всегда перезаписываем
+        // setOnEmpty = false -> always overwrite
         yield [null, 42, 42];
         yield ['', 'default', 'default'];
         yield ['already set', 'new', 'new'];

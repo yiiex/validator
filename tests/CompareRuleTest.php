@@ -10,7 +10,7 @@ use Yii1x\Validator\Validator;
 
 final class CompareRuleTest extends TestCase
 {
-    /* ---------- ВАЛИДНЫЕ КЕЙСЫ ---------- */
+    /* ---------- VALID CASES ---------- */
 
     #[DataProvider('validProvider')]
     public function testValid(
@@ -39,7 +39,7 @@ final class CompareRuleTest extends TestCase
         $this->assertFalse($rule->validator->hasErrors('age'));
     }
 
-    /* ---------- НЕВАЛИДНЫЕ КЕЙСЫ ---------- */
+    /* ---------- INVALID CASES ---------- */
 
     #[DataProvider('invalidProvider')]
     public function testInvalid(
@@ -81,7 +81,7 @@ final class CompareRuleTest extends TestCase
         $this->assertFalse($rule->validator->hasErrors('password'));
     }
 
-    /* ---------- КАСТОМНОЕ СООБЩЕНИЕ ---------- */
+    /* ---------- CUSTOM MESSAGE ---------- */
 
     public function testCustomMessage(): void
     {
@@ -103,13 +103,13 @@ final class CompareRuleTest extends TestCase
 
     public static function validProvider(): iterable
     {
-        // базовое равенство
+        // basic equality
         yield ['secret', 'secret'];
-        // нестрогие типы
+        // loose types
         yield [1, '1', '=', false];
-        // строгое равенство
+        // strict equality
         yield [1, 1, '=', true];
-        // операторы
+        // operators
         yield [5, 3, '>'];
         yield [3, 3, '>='];
         yield [1, 3, '<'];
@@ -119,11 +119,11 @@ final class CompareRuleTest extends TestCase
 
     public static function invalidProvider(): iterable
     {
-        // базовое неравенство
+        // basic inequality
         yield ['foo', 'bar'];
-        // строгий режим
+        // strict mode
         yield [1, '1', '=', true];
-        // операторы
+        // operators
         yield [2, 3, '>'];
         yield [2, 3, '>='];
         yield [4, 3, '<'];

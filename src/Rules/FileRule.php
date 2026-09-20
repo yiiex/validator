@@ -106,7 +106,7 @@ class FileRule extends AbstractRule
         $files = $object->$attribute;
         $files = is_array($files) ? $files : [$files];
 
-        // быстрая проверка количества
+        // quick file count check
         if (!$files) {
             if ($this->safe) {
                 $object->$attribute = null;
