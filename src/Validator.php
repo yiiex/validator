@@ -121,26 +121,62 @@ class Validator implements ValidatorInterface
             throw new \InvalidArgumentException('The "when" property must be a callable.');
         }
         if (isset(static::$ruleAlias[$name]) || class_exists($name)) {
-            $params['attributes'] = $attributes;
-            $rule = isset(static::$ruleAlias[$name]) ? new static::$ruleAlias[$name] : new $name;
-            foreach ($params as $name => $value) {
-                $rule->$name = $value;
+            $rule = $this->createRuleInstance(static::$ruleAlias[$name] ?? $name, $object);
+            foreach ($params as $property => $value) {
+                $rule->$property = $value;
             }
         } elseif (method_exists($object, $name)) {
-            $rule = new InlineRule;
-            $rule->attributes = $attributes;
-            $rule->method = $name;
-            $rule->params = $params;
-            if (isset($params['skipOnError'])) {
-                $rule->skipOnError = $params['skipOnError'];
-            }
+            $rule = $this->createInlineRuleInstance($name, $object, $params);
         } else {
             throw new \InvalidArgumentException('The rule "' . $name . '" does not exist.');
         }
+        $rule->attributes = $attributes;
         $rule->on = empty($on) ? [] : array_combine($on, $on);
         $rule->except = empty($except) ? [] : array_combine($except, $except);
         $rule->when = $when;
         $rule->validator = $this;
+        return $rule;
+    }
+
+    /**
+     * Creates a rule instance for the given class.
+     *
+     * Override this method in a subclass to build rules through a DI container or an
+     * injector. The returned rule is configured by the caller afterwards (the rule
+     * options, attributes, "on"/"except"/"when" and the validator instance), so
+     * implementations should return a fresh instance unless they manage the rule's
+     * state themselves.
+     *
+     * @param string $class the rule class name
+     * @param object $object the object being validated
+     * @return AbstractRule the rule instance
+     */
+    protected function createRuleInstance(string $class, object $object): AbstractRule
+    {
+        return new $class();
+    }
+
+    /**
+     * Creates an inline rule (a method defined on the validated object).
+     *
+     * The returned rule must have its inline-specific properties configured: "method"
+     * and "params" (the default implementation sets both, plus "skipOnError"). The
+     * caller then assigns the common properties: attributes, "on"/"except"/"when" and
+     * the validator instance.
+     *
+     * @param string $method the method name
+     * @param object $object the object being validated
+     * @param array $params rule options passed to the method
+     * @return AbstractRule the rule instance
+     */
+    protected function createInlineRuleInstance(string $method, object $object, array $params): AbstractRule
+    {
+        $rule = new InlineRule();
+        $rule->method = $method;
+        $rule->params = $params;
+        if (isset($params['skipOnError'])) {
+            $rule->skipOnError = $params['skipOnError'];
+        }
         return $rule;
     }
 

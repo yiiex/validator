@@ -5,6 +5,8 @@ namespace Yii1x\Validator\Tests;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Yii1x\Validator\Rules\AbstractRule;
+use Yii1x\Validator\Rules\RequiredRule;
 use Yii1x\Validator\Validator;
 
 final class ValidatorTest extends TestCase
@@ -260,6 +262,61 @@ final class ValidatorTest extends TestCase
 
         $this->assertTrue($validator->hasErrors('name'));
         $this->assertSame(1, $whenCalls);                        // "when" runs once, last
+    }
+
+    /* ---------- EXTENDING: RULE FACTORY HOOKS ---------- */
+
+    public function testCreateInstanceHooks(): void
+    {
+        $model = new class {
+            public string $name = '';
+
+            public function checkName(string $attribute, array $params, Validator $validator): void
+            {
+            }
+        };
+
+        $rule = $this->createMock(AbstractRule::class);
+        $rule->method('applyTo')->willReturn(true);
+        $rule->expects($this->once())->method('validate');
+
+        $inline = $this->createMock(AbstractRule::class);
+        $inline->method('applyTo')->willReturn(true);
+        $inline->expects($this->once())->method('validate');
+
+        $validator = new class($model, [
+            ['name', 'required'],
+            ['name', 'checkName'],
+        ], $rule, $inline) extends Validator {
+            public array $madeRules = [];
+            public array $madeInline = [];
+
+            public function __construct(
+                object $object,
+                array $rules,
+                private AbstractRule $rule,
+                private AbstractRule $inline,
+            ) {
+                parent::__construct($object, $rules);
+            }
+
+            protected function createRuleInstance(string $class, object $object): AbstractRule
+            {
+                $this->madeRules[] = $class;
+                return $this->rule;
+            }
+
+            protected function createInlineRuleInstance(string $method, object $object, array $params): AbstractRule
+            {
+                $this->madeInline[] = $method;
+                return $this->inline;
+            }
+        };
+
+        $validator->validate();
+
+        $this->assertSame([RequiredRule::class], $validator->madeRules);
+        $this->assertSame(['checkName'], $validator->madeInline);
     }
 
     /* ---------- DATA PROVIDERS ---------- */
