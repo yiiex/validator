@@ -121,12 +121,15 @@ class Validator implements ValidatorInterface
             throw new \InvalidArgumentException('The "when" property must be a callable.');
         }
         if (isset(static::$ruleAlias[$name]) || class_exists($name)) {
-            $rule = $this->createRuleInstance(static::$ruleAlias[$name] ?? $name, $object);
+            $rule = $this->createRuleInstance(static::$ruleAlias[$name] ?? $name);
             foreach ($params as $property => $value) {
+                if (!property_exists($rule, $property)) {
+                    throw new \InvalidArgumentException(sprintf('Unknown option "%s" for rule %s.', $property, $rule::class));
+                }
                 $rule->$property = $value;
             }
         } elseif (method_exists($object, $name)) {
-            $rule = $this->createInlineRuleInstance($name, $object, $params);
+            $rule = $this->createInlineRuleInstance($name, $params);
         } else {
             throw new \InvalidArgumentException('The rule "' . $name . '" does not exist.');
         }
@@ -148,10 +151,9 @@ class Validator implements ValidatorInterface
      * state themselves.
      *
      * @param string $class the rule class name
-     * @param object $object the object being validated
      * @return AbstractRule the rule instance
      */
-    protected function createRuleInstance(string $class, object $object): AbstractRule
+    protected function createRuleInstance(string $class): AbstractRule
     {
         return new $class();
     }
@@ -165,11 +167,10 @@ class Validator implements ValidatorInterface
      * the validator instance.
      *
      * @param string $method the method name
-     * @param object $object the object being validated
      * @param array $params rule options passed to the method
      * @return AbstractRule the rule instance
      */
-    protected function createInlineRuleInstance(string $method, object $object, array $params): AbstractRule
+    protected function createInlineRuleInstance(string $method, array $params): AbstractRule
     {
         $rule = new InlineRule();
         $rule->method = $method;

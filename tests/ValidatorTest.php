@@ -110,6 +110,18 @@ final class ValidatorTest extends TestCase
         $validator->validate();
     }
 
+    public function testUnknownRuleOptionThrows(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unknown option "minn"');
+
+        $validator = new Validator((object)['name' => 'x'], [
+            ['name', 'length', 'minn' => 5],
+        ]);
+
+        $validator->validate();
+    }
+
     /* ---------- MULTIPLE ATTRIBUTES ---------- */
 
     public function testMultipleAttributes(): void
@@ -300,13 +312,13 @@ final class ValidatorTest extends TestCase
                 parent::__construct($object, $rules);
             }
 
-            protected function createRuleInstance(string $class, object $object): AbstractRule
+            protected function createRuleInstance(string $class): AbstractRule
             {
                 $this->madeRules[] = $class;
                 return $this->rule;
             }
 
-            protected function createInlineRuleInstance(string $method, object $object, array $params): AbstractRule
+            protected function createInlineRuleInstance(string $method, array $params): AbstractRule
             {
                 $this->madeInline[] = $method;
                 return $this->inline;
