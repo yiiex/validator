@@ -7,6 +7,7 @@ options shared by all of them.
 
 - [Rule declaration](#rule-declaration)
 - [Common options](#common-options)
+- [Attribute names, labels and translation](#attribute-names-labels-and-translation)
 - [Scenarios](#scenarios)
 - [Conditional rules (`when`)](#conditional-rules-when)
 - [required](#required)
@@ -38,7 +39,9 @@ array where:
 - element `0` — attribute name(s): a string (`'name'`, `'name, email'`) or an array;
 - element `1` — validator name: an alias from the table below, an inline method
   name, or a fully-qualified class name;
-- the rest — option name/value pairs assigned to public properties of the rule.
+- the rest — option name/value pairs assigned to public properties of the rule. An
+  option that does not match a declared property of the rule throws an
+  `InvalidArgumentException`.
 
 ```php
 use Yii1x\Validator\Validator;
@@ -75,9 +78,24 @@ Every rule extends `AbstractRule` and therefore supports the following options.
 | `safe` | `bool` | `true` | Whether the attributes are considered safe for mass assignment. |
 | `when` | `?callable` | `null` | `fn($object): bool`. When it returns `false`, the whole rule is skipped. Evaluated last, after the scenario checks, once per `getRules()` call. |
 
-For every rule, `{attribute}` is replaced with the **attribute name** (this
-package has no attribute labels). A `null` or empty-string scenario is treated as
-the Yii 1 default (empty) scenario: rules with a non-empty `on` are skipped.
+For every rule, `{attribute}` is replaced with the **attribute name**. This package
+does not resolve attribute labels or translations — see
+[Attribute names, labels and translation](#attribute-names-labels-and-translation)
+for how to customise this. A `null` or empty-string scenario is treated as the Yii 1
+default (empty) scenario: rules with a non-empty `on` are skipped.
+
+---
+
+## Attribute names, labels and translation
+
+Error messages use the raw attribute name for `{attribute}` (and, in `compare`, for
+`{compareAttribute}`). There are no built-in attribute labels or translations.
+
+If you need human-readable names, translation, or an extra `{label}` placeholder,
+override `Validator::prepareErrorMessage()`. It is the single place where every error
+message is prepared, and the validated object is available as `$this->object`. In this
+method you can resolve labels, translate messages and transform any placeholders (for
+example, map `{compareAttribute}` to a label).
 
 ---
 
@@ -240,13 +258,11 @@ Validates an http/https URL. On success the attribute is written back (e.g. with
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `validSchemes` | `array` | `['http', 'https']` | Allowed URI schemes. This is what actually builds the pattern. |
+| `pattern` | `string` | Yii 1 default | Regular expression that the value must match. The `{schemes}` token is replaced with an alternation of `validSchemes`. |
+| `validSchemes` | `array` | `['http', 'https']` | Allowed URI schemes, substituted into `{schemes}`. |
 | `defaultScheme` | `?string` | `null` | Scheme prepended when the value has no `://` part. |
 | `allowEmpty` | `bool` | `true` | Empty values are considered valid. |
 | `validateIDN` | `bool` | `false` | Encode internationalized hosts via `idn_to_ascii()` (requires `ext-intl`). |
-
-> ⚠️ The declared `pattern` property is currently **not used**; configure
-> `validSchemes` instead. See [migration-from-yii1.md](migration-from-yii1.md).
 
 **Message:** `{attribute} is not a valid URL.`
 
@@ -279,9 +295,8 @@ Compares the attribute with another attribute or a constant value.
 `{attribute} must be greater than "{compareValue}".`, `… greater than or equal …`,
 `… less than …`, `… less than or equal …`.
 
-> ⚠️ When `compareValue` is not set, the rule calls
-> `$object->getAttributeLabel($compareAttribute)`. Plain objects must provide
-> this method. See [migration-from-yii1.md](migration-from-yii1.md).
+> `{compareAttribute}` is replaced with the **attribute name**, not a label — see
+> [Attribute names, labels and translation](#attribute-names-labels-and-translation).
 
 ---
 

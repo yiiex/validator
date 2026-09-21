@@ -99,6 +99,41 @@ final class CompareRuleTest extends TestCase
         $this->assertContains('Пароли должны совпадать', $errors['password']);
     }
 
+    /* ---------- COMPARISON WITH AN ATTRIBUTE (no compareValue) ---------- */
+
+    public function testCompareWithDefaultRepeatAttribute(): void
+    {
+        $rule = new CompareRule();
+        $rule->allowEmpty = false;
+        $rule->attributes = ['password'];
+
+        $valid = (object)['password' => 'secret', 'password_repeat' => 'secret'];
+        $rule->validator = new Validator($valid);
+        $rule->validate($valid);
+        $this->assertFalse($rule->validator->hasErrors('password'));
+
+        $invalid = (object)['password' => 'secret', 'password_repeat' => 'other'];
+        $rule->validator = new Validator($invalid);
+        $rule->validate($invalid);
+        $this->assertTrue($rule->validator->hasErrors('password'));
+    }
+
+    public function testCompareAttributePlaceholderIsAttributeName(): void
+    {
+        $obj = (object)['password' => 'secret', 'password2' => 'other'];
+        $rule = new CompareRule();
+        $rule->compareAttribute = 'password2';
+        $rule->message = '{attribute} must match {compareAttribute}';
+        $rule->allowEmpty = false;
+        $rule->attributes = ['password'];
+        $rule->validator = new Validator($obj);
+
+        $rule->validate($obj);
+
+        $errors = $rule->validator->getErrors('password');
+        $this->assertContains('password must match password2', $errors['password']);
+    }
+
     /* ---------- DATA PROVIDERS ---------- */
 
     public static function validProvider(): iterable

@@ -111,39 +111,18 @@ $validator->validate();
 
 ---
 
-## `CompareRule` relies on `getAttributeLabel()`
+## `CompareRule` and attribute labels
 
-**Was (Yii1):** `CCompareValidator` always resolved the compared attribute label
-through `CModel::getAttributeLabel()` for the `{compareAttribute}` placeholder.
+**Was (Yii1):** `CCompareValidator` resolved the compared attribute **label** through
+`CModel::getAttributeLabel()` for the `{compareAttribute}` placeholder.
 
-**Now:** the port kept the call, but the validated object may not be a `CModel`.
-When `compareValue` is **not** set, `CompareRule` calls
-`$object->getAttributeLabel($compareAttribute)` on the validated object.
+**Now:** there are no labels — `{compareAttribute}` is replaced with the compared
+attribute **name** (e.g. `password_repeat`). `CompareRule` no longer calls
+`getAttributeLabel()`, so it works on any plain object.
 
-**Action:** prefer comparing against an explicit `compareValue`:
-
-```php
-['password', 'compare', 'compareValue' => $model->password],
-```
-
-If you use `compareAttribute` (or the implicit `{attribute}_repeat` behavior),
-make sure the validated object exposes a `getAttributeLabel()` method.
-
----
-
-## `UrlRule::$pattern` is not used
-
-**Was (Yii1):** `CUrlValidator::$pattern` was configurable and supported the
-`{schemes}` token.
-
-**Now:** URL validation builds its regular expression from `validSchemes`
-directly; the declared `$pattern` property has no effect.
-
-**Action:** configure `validSchemes` instead of `pattern`:
-
-```php
-['site', 'url', 'validSchemes' => ['http', 'https']],
-```
+**Action:** if you relied on labels in the `{compareAttribute}` placeholder, provide
+your own naming/translation by overriding `Validator::prepareErrorMessage()` — see
+[rules.md](rules.md#attribute-names-labels-and-translation).
 
 ---
 
@@ -157,8 +136,11 @@ directly; the declared `$pattern` property has no effect.
 $validator->validate(?string $scenario = null, ?array $attributes = null, bool $clearErrors = true): bool;
 ```
 
-Errors are read with `getErrors()` / `hasErrors()` and cleared with `clearErrors()`.
+As in Yii 1, errors are cleared before validation by default; pass `false` for
+`$clearErrors` to keep the existing errors. Errors are read with `getErrors()` /
+`hasErrors()` and cleared manually with `clearErrors()`.
 
 **Action:** replace `$model->validate()` calls with an explicit `Validator`
 instance, and `$model->getErrors()` / `$model->hasErrors()` with the corresponding
-methods on the validator.
+methods on the validator. Note that the scenario is now passed explicitly as the
+first argument instead of being read from the model.

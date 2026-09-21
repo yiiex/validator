@@ -29,7 +29,7 @@ namespace Yii1x\Validator\Rules;
  * CCompareValidator allows for the following placeholders to be specified:
  * <ul>
  * <li>{compareValue}: replaced with the constant value being compared with ({@link compareValue}).</li>
- * <li>{compareAttribute}: replaced with the label of the attribute being compared with ({@link compareAttribute}).</li>
+ * <li>{compareAttribute}: replaced with the name of the attribute being compared with ({@link compareAttribute}).</li>
  * </ul>
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
@@ -88,7 +88,7 @@ class CompareRule extends AbstractRule
         else {
             $compareAttribute = $this->compareAttribute === null ? $attribute . '_repeat' : $this->compareAttribute;
             $compareValue = $object->$compareAttribute;
-            $compareTo = $object->getAttributeLabel($compareAttribute);
+            $compareTo = $compareAttribute;
         }
 
         switch ($this->operator) {

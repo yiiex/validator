@@ -4,7 +4,7 @@ namespace Yii1x\Validator\Contracts;
 
 interface ValidatorInterface
 {
-    public function validate(string $scenario): bool;
+    public function validate(?string $scenario = null, ?array $attributes = null, bool $clearErrors = true): bool;
 
     public function addError(string $attribute, string $message, array $params = []): static;
 

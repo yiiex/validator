@@ -80,9 +80,9 @@ class UrlRule extends AbstractRule
             $value = $this->handleIDN($value);
         }
 
-        // scheme check
-        $schemes = implode('|', $this->validSchemes);
-        $pattern = sprintf('#^(%s)://([a-z0-9-]+\.)*[a-z0-9-]+(/.*)?$#i', $schemes);
+        // scheme check: the {schemes} token is replaced with the configured schemes (Yii 1 behaviour)
+        $schemes = '(' . implode('|', $this->validSchemes) . ')';
+        $pattern = str_replace('{schemes}', $schemes, $this->pattern);
         return preg_match($pattern, $value) ? $value : false;
     }
 

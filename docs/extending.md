@@ -8,8 +8,8 @@ other construction strategy — the core stays free of such dependencies.
 
 | Method | Purpose |
 |---|---|
-| `createRuleInstance(string $class, object $object): AbstractRule` | Creates a rule instance for an alias or class name. Default: `new $class()`. |
-| `createInlineRuleInstance(string $method, object $object, array $params): AbstractRule` | Creates the inline rule for a method defined on the validated object. |
+| `createRuleInstance(string $class): AbstractRule` | Creates a rule instance for an alias or class name. Default: `new $class()`. |
+| `createInlineRuleInstance(string $method, array $params): AbstractRule` | Creates the inline rule for a method defined on the validated object. |
 
 The returned rule is then configured by the validator:
 
@@ -40,7 +40,7 @@ final class ContainerAwareValidator extends Validator
         parent::__construct($object, $rules);
     }
 
-    protected function createRuleInstance(string $class, object $object): AbstractRule
+    protected function createRuleInstance(string $class): AbstractRule
     {
         return $this->container->has($class)
             ? $this->container->get($class)
